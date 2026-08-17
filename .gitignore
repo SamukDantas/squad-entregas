@@ -1,0 +1,9 @@
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.squad/
+*.pyc
+*.log
+*_output.txt
+*_result.txt
+*_results.txt
