@@ -14,6 +14,3 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Task Management API", lifespan=lifespan)
 app.include_router(router)
-
-# Garante o schema mesmo que o lifespan não seja disparado (ex.: TestClient).
-db.init_db()

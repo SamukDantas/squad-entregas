@@ -2,10 +2,17 @@ import os
 import sqlite3
 from datetime import datetime, timezone
 
-DB_PATH = os.environ.get(
-    "TASKS_DB_PATH",
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "tasks.db"),
-)
+_DB_PADRAO = os.path.join(os.path.dirname(os.path.abspath(__file__)), "tasks.db")
+
+
+def db_path():
+    """Caminho do banco, resolvido a cada chamada.
+
+    Lido no import, `TASKS_DB_PATH` só valeria se definida antes de importar
+    este módulo — quem a definisse depois seguiria no caminho padrão, sem
+    aviso.
+    """
+    return os.environ.get("TASKS_DB_PATH", _DB_PADRAO)
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS tasks (
@@ -14,14 +21,18 @@ CREATE TABLE IF NOT EXISTS tasks (
     description TEXT,
     status      TEXT    NOT NULL DEFAULT 'pending'
                 CHECK(status IN ('pending','in_progress','done')),
-    created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
-    updated_at  TEXT    NOT NULL DEFAULT (datetime('now'))
+    -- Sem DEFAULT: os carimbos vêm do código, em ISO-8601 com timezone (_now).
+    -- Um DEFAULT (datetime('now')) gravaria 'YYYY-MM-DD HH:MM:SS' na mesma
+    -- coluna, e a origem do valor decidiria o formato. Sem ele, um INSERT que
+    -- esqueça as colunas falha alto em vez de gravar no outro formato.
+    created_at  TEXT    NOT NULL,
+    updated_at  TEXT    NOT NULL
 );
 """
 
 
 def get_connection():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(db_path())
     conn.row_factory = sqlite3.Row
     return conn
 

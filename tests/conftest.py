@@ -15,9 +15,8 @@ if str(ROOT_DIR) not in sys.path:
 _TMP_DIR = Path(tempfile.mkdtemp(prefix="tasks-api-tests-"))
 _DB_PATH = _TMP_DIR / "tasks.db"
 
-# db.py lê TASKS_DB_PATH no momento da importação. Como este conftest é
-# importado antes dos módulos de teste, o banco usado pela aplicação fica
-# isolado em um diretório temporário.
+# db.py lê TASKS_DB_PATH a cada conexão. Definindo aqui, o banco usado pela
+# aplicação fica isolado em um diretório temporário durante toda a suíte.
 os.environ["TASKS_DB_PATH"] = str(_DB_PATH)
 atexit.register(shutil.rmtree, _TMP_DIR, ignore_errors=True)
 
